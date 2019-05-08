@@ -1,0 +1,33 @@
+{
+    "manifest_version": 2,
+    "name": "Auto Grab Output For WASM",
+    "version": "1.0.0",
+    "description": "当打开一个由 Emscription 编译生成的 html 页面, 自动捕获并记录其页面的输出信息.",
+    "icons": {
+        "16": "img/icon.png",
+        "32": "img/icon.png",
+        "48": "img/icon.png",
+        "128": "img/icon.png"
+    },
+
+    "web_accessible_resources": ["js/inject.js"],
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js":[
+                "js/content.js"
+            ],
+            "run_at": "document_start"
+        }
+    ],
+    
+    "permissions": [
+        "nativeMessaging",
+        "webNavigation",
+        "http://*/",
+        "https://*/",
+        "*://*/*"
+    ]
+}
