@@ -14,6 +14,19 @@ function injectCustomJs(jsPath)
 }
 
 
+// 接受 inject js 的消息
+window.addEventListener("message", function(e) {
+    let msg = e.data;
+
+    if (msg.dest === "ContentJS" && msg.src === "InjectJS" && msg.type === "output") {
+
+        // 向 background 发送消息
+        msg.dest = "BackgroundJS";
+        chrome.runtime.sendMessage(msg);
+    }
+
+})
+
 window.onload = function() {
     injectCustomJs()
 }

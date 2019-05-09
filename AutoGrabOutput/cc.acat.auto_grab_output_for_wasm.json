@@ -1,0 +1,9 @@
+{
+	"name": "cc.acat.auto_grab_output_for_wasm",
+	"description": "Auto Grab Output 所需的本地程序",
+	"path": "<native_program_path>",
+	"type": "stdio",
+	"allowed_origins": [
+		"chrome-extension://<extension_id>/"
+	]
+}
