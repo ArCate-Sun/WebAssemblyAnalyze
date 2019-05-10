@@ -1,19 +1,3 @@
-function injectCustomJs(jsPath)
-{
-    jsPath = jsPath || 'js/inject.js';
-    var temp = document.createElement('script');
-    temp.setAttribute('type', 'text/javascript');
-    // 获得的地址类似：chrome-extension://ihcokhadfjfchaeagdoclpnjdiokfakg/js/inject.js
-    temp.src = chrome.extension.getURL(jsPath);
-    // temp.onload = function()
-    // {
-    //     // 放在页面不好看，执行完后移除掉
-    //     this.parentNode.removeChild(this);
-    // };
-    document.head.appendChild(temp);
-}
-
-
 // 接受 inject js 的消息
 window.addEventListener("message", function(e) {
     let msg = e.data;
@@ -28,5 +12,31 @@ window.addEventListener("message", function(e) {
 })
 
 window.onload = function() {
-    injectCustomJs()
+    let status = document.getElementById("status");
+    let output = document.getElementById("output");
+    
+    let msg = {
+        cmd: undefined,
+        src: "ContentJS",
+        dest: "BackgroundJS",
+        data: undefined
+    }
+    
+    if (status && output) {
+        let interval = setInterval(() => {
+            if (status.innerHTML === "") {
+                // 获得 asm 的输出, 并发送给 content js
+                clearInterval(interval);
+        
+                msg.cmd = "output";
+                msg.data = output.value
+    
+                chrome.runtime.sendMessage(msg);
+    
+            }
+        }, 5000)
+    } else {
+        msg.cmd = "skip"
+        chrome.runtime.sendMessage(msg);
+    }
 }

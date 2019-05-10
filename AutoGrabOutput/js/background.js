@@ -8,10 +8,10 @@ let htmlId = -1;
 var htmlList = []
 
 function terminate() {
-    let msg = {
-        cmd: "terminate"
+    if (port) {
+        port.disconnect();
+        port = null;
     }
-    sendNativeMessage(msg);
 }
 
 function openFirstWasmHtml() {
@@ -85,7 +85,9 @@ function connectNative() {
 
 function start(_host, work_dir_path, output_file_path) {
 
-    alert("start")
+    console.log("start")
+
+    connectNative();
 
     host = _host;
 
@@ -101,20 +103,24 @@ function start(_host, work_dir_path, output_file_path) {
 
 // 接受来自 content js 的信息
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    if (message.type === "output") {
-
-        let msg = {
-            cmd: "output",
-            data: {
-                id: htmlList[htmlId],
-                output: message.data
-            }
-        };
-
-        sendNativeMessage(msg);
-
-        openNextWasmHtml();
+    if (message.src === "ContentJS" && message.dest === "BackgroundJS") {
+        switch (message.cmd) {
+            case "output":
+                let msg = {
+                    cmd: "output",
+                    data: {
+                        id: htmlList[htmlId],
+                        output: message.data
+                    }
+                };
+                sendNativeMessage(msg);
+        
+                openNextWasmHtml();
+                break;
+            case "skip":
+                openNextWasmHtml();
+                break;
+        }
     }
+    
 });
-
-connectNative();

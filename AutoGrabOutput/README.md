@@ -17,7 +17,20 @@ Auto Grab Output for WASM HTML
 * Python3
 * [WebAssembly](https://webassembly.org/getting-started/developers-guide/)
 
-# 安装
+# 运行脚本安装
+
+1. 在地址栏输入 `chrome://extensions/` 进入扩展程序管理页面, 确保右上角开发者模式的开关为开启状态.
+2. 点击 **[加载已解压的扩展程序]** 按钮, 在弹出的文件选择弹窗中选择该项目中 `AutoGrabOutput` 文件夹, 以添加该插件.
+3. 打开终端, 执行以下命令自动部署本地服务程序:
+    ```
+    $ cd ./AutoGrabOutput
+    $ python3 install.py
+    ```
+7. 在 Chrome 浏览器插件管理页面中找到该插件的选项卡, 点击重新加载按钮.
+8. 在 **工作路径** 下运行 `emrun --no_browser --port 8080 .` 建立 WEB 服务.
+9. 在 Chrome 浏览器点击该插件, 输入指定的 **工作路径** 以及 **输出文件路径**, 点击 **[开始]** 按钮, 开始运行.
+
+# 手动安装
 
 1. 在地址栏输入 `chrome://extensions/` 进入扩展程序管理页面, 确保右上角开发者模式的开关为开启状态.
 2. 点击 **[加载已解压的扩展程序]** 按钮, 在弹出的文件选择弹窗中选择该项目中 `AutoGrabOutput` 文件夹, 以添加该插件.
