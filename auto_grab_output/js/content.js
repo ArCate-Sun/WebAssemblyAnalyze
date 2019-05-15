@@ -64,7 +64,6 @@ function start() {
     }
 
     let pageType = judgePageType(document);
-    console.log(pageType);
 
     switch (pageType) {
         case HTML_LIST:
@@ -80,7 +79,6 @@ function start() {
                 htmls: htmls,
                 directories: directories
             };
-            console.log(msg)
 
             // 发送消息
             chrome.runtime.sendMessage(msg);
@@ -100,12 +98,9 @@ function start() {
                     // 并组合消息
                     msg.cmd = "output";
                     msg.data = output.value;
-
-                    console.log(msg)
         
                     // 发送消息
                     chrome.runtime.sendMessage(msg);
-        
                 }
             }, 5000);
 

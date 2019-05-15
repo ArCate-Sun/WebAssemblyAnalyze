@@ -55,8 +55,6 @@ function openNextPage() {
         });
 
         console.log("[Auto Grap Output for WASM HTML] Open:", tab.id, url);
-        console.log(directories);
-        console.log(htmls);
     });
 }
 
