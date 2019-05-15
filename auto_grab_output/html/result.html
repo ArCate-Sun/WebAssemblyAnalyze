@@ -1,27 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+
 <head>
-    <meta charset='utf-8'>
-    <title>Result</title>
-    <style>
-        #result-table {
-            text-align: left;
-        };
-    </style>
-    <script src="../js/result.js"></script>
+	<title>Result</title>
+	<meta charset="utf8"/>
+	<link href="../css/fonts/styles.css" rel="stylesheet" type="text/css" />
+	<link href="../css/styles.css" rel="stylesheet" type="text/css" />
+	<script src="../js/result.js"></script>
 </head>
+
 <body>
-    <h1>
-        Result...
-        <button id="download">Click here to download...</button>
-    </h1>
+	<div class="up-content">
+		<h1>Result...
+			<button id="download">Click here to download</button>
+		</h1>
+		<br>
 
-    <table id="result-table" border="1" width="100%">
-        <tr>
-            <th>ID</th>
-            <th>Data</th>
-        </tr>
-    </table>
-
+		<div id="result-table"></div>
+		<div id="version">Auto Grab Output for WASM HTML v2.0.0</div>
+	</div>
 </body>
+
 </html>

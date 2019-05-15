@@ -52,8 +52,7 @@ function extractDirectoriesFromList(list) {
     return result;
 }
 
-
-window.onload = function() {
+function start() {
 
     let msg = {
         extension: "auto-grab-output-for-wasm",
@@ -65,6 +64,7 @@ window.onload = function() {
     }
 
     let pageType = judgePageType(document);
+    console.log(pageType);
 
     switch (pageType) {
         case HTML_LIST:
@@ -112,5 +112,6 @@ window.onload = function() {
             break;
     }
 
-    
 }
+
+start();

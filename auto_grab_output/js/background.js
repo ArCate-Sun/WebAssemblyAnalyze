@@ -1,21 +1,33 @@
-let host = undefined;
-let port = undefined;
+var host = undefined;
+var port = undefined;
 
-let running = false;
+var running = false;
 
-let lastTab = undefined;
+var lastTab = undefined;
 var htmls = undefined;
 var directories = undefined;
 var output = undefined;
 
 function showResult() {
+
+    console.log("[Auto Grap Output for WASM HTML] Show Result!");
+
     chrome.tabs.create({
         url: chrome.extension.getURL("html/result.html"),
         active: true
     })
 }
 
-function openNextWasmHtml() {
+// 关闭当前页面
+function closeCurrentPage() {
+    if (lastTab) {
+        chrome.tabs.remove(lastTab.id);
+        lastTab = undefined;
+    }
+}
+
+// 打开下一个页面
+function openNextPage() {
 
     if (!running) {
         return;
@@ -23,18 +35,28 @@ function openNextWasmHtml() {
 
     let url = htmls.shift() || directories.shift();
     if (url === undefined) {
+        // 遍历完成所有 html 后, 结束
         showResult();
         stop();
         return;
     }
-    url = `${host}:${port}${url}`;
+    url = `http://${host}:${port}${url}`;
 
     chrome.tabs.create({
         url: url,
         active: true
     }, function (tab) {
         lastTab = tab;
-        console.log("[Auto Grap Output for WASM HTML] Open:", url)
+
+        // 向页面注入执行的 js 代码
+        chrome.tabs.executeScript(tab.id, {
+            file: "js/content.js",
+            runAt: "document_end"
+        });
+
+        console.log("[Auto Grap Output for WASM HTML] Open:", tab.id, url);
+        console.log(directories);
+        console.log(htmls);
     });
 }
 
@@ -53,16 +75,17 @@ function start(_host, _port) {
     directories = ["/"];
     output = [];
 
-    openNextWasmHtml();
+    openNextPage();
 }
 
 function stop() {
 
     console.log("[Auto Grap Output for WASM HTML] Stop Task!");
 
-    running = false;
 
-    lastTab = undefined;
+    closeCurrentPage();
+
+    running = false;
     htmls = undefined;
     directories = undefined;
 }
@@ -94,10 +117,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     switch (message.cmd) {
         case "list":
             htmls = htmls.concat(data.htmls);
-            directories = directories.concat(data.directories);
-            console.log(directories)
-            chrome.tabs.remove(lastTab.id);
-            openNextWasmHtml();
+            directories = data.directories.concat(directories);
+            closeCurrentPage();
+            openNextPage();
             break;
         case "output":
             // escape data
@@ -106,12 +128,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                 id: pathname,
                 output: data
             });
-            chrome.tabs.remove(lastTab.id);
-            openNextWasmHtml();
+            closeCurrentPage();
+            openNextPage();
             break;
         case "skip":
-            chrome.tabs.remove(lastTab.id);
-            openNextWasmHtml();
+            closeCurrentPage();
+            openNextPage();
             break;
         case "stop":
             running = false;

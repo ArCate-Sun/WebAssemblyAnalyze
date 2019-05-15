@@ -1,25 +1,29 @@
 // 需要的 DOME 元素
-let tagHost = document.getElementById("tag-host");
-let inputHost = document.getElementById("host");
-let tagPort = document.getElementById("tag-port");
-let inputPort = document.getElementById("port");
-let btnStart = document.getElementById("start")
+let tagHost = undefined;
+let inputHost = undefined;
+let tagPort = undefined;
+let inputPort = undefined;
+let btnSubmit = undefined;
 
 // Background Script
 let bg = chrome.extension.getBackgroundPage();
 
-function enableBtnStart() {
-    btnStart.disabled = false;
-    btnStart.innerHTML = "Start";
+// 刷新 Popup 控件
+function flushStatus() {
+    if (bg.running) {
+        inputHost.value = bg.host;
+        inputPort.value = bg.port;
+        inputHost.disabled = true;
+        inputPort.disabled = true;
+        btnSubmit.innerHTML = "Stop";
+    } else {
+        inputHost.disabled = false;
+        inputPort.disabled = false;
+        btnSubmit.innerHTML = "Start";
+    }
 }
 
-function disableBtnStart() {
-    btnStart.disabled = true;
-    btnStart.innerHTML = "Running...";
-}
-
-// btnStart's click 事件回调函数
-function start() {
+function verifyInputs() {
     let host = inputHost.value;
     let port = inputPort.value;
 
@@ -35,16 +39,32 @@ function start() {
         tagPort.classList.add("warn");
     }
 
-    if (!!host && !!port) {
-        disableBtnStart()
-        bg.start(host, port);
+    return host && port;
+}
+
+// btnSubmit's click 事件回调函数
+function submit() {
+
+    if (bg.running) {
+        bg.showResult();
+        bg.stop();
+    } else {
+        if (verifyInputs()) {
+            let host = inputHost.value;
+            let port = inputPort.value;
+            bg.start(host, port);
+        }
     }
 }
 
-if (bg.running) {
-    disableBtnStart()
-} else {
-    enableBtnStart()
-}
+window.onload = function () {
 
-btnStart.onclick = start;
+    tagHost = document.getElementById("tag-host");
+    inputHost = document.getElementById("host");
+    tagPort = document.getElementById("tag-port");
+    inputPort = document.getElementById("port");
+    btnSubmit = document.getElementById("submit");
+
+    flushStatus();
+    btnSubmit.onclick = submit;
+}
