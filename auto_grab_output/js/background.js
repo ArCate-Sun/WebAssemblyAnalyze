@@ -1,89 +1,120 @@
-var host = "localhost:8080";
+let host = undefined;
+let port = undefined;
 
-let tabId = -1;
-let htmlId = -1;
-var htmlList = []
+let running = false;
 
-function openFirstWasmHtml() {
+let lastTab = undefined;
+var htmls = undefined;
+var directories = undefined;
+var output = undefined;
 
-    htmlId += 1;
-
-    let url = `${host}/${htmlList[htmlId]}`;
-    
-    if (htmlList.length <= htmlId) {
-        return;
-    }
-
+function showResult() {
     chrome.tabs.create({
-        url: url,
+        url: chrome.extension.getURL("html/result.html"),
         active: true
-    }, function(tab) {
-        tabId = tab.id
-        console.log("open:", url)
-    });
+    })
 }
 
 function openNextWasmHtml() {
 
-    htmlId += 1;
-    
-    let url = `${host}/${htmlList[htmlId]}`;
-    
-    if (htmlList.length <= htmlId) {
-        terminate();
+    if (!running) {
         return;
     }
 
-    chrome.tabs.update(
-        tabId,
-        {
-            url: url,
-            active: true
-        },
-        function(tab) {
-            console.log("open:", url)
-        }
-    );
+    let url = htmls.shift() || directories.shift();
+    if (url === undefined) {
+        showResult();
+        stop();
+        return;
+    }
+    url = `${host}:${port}${url}`;
+
+    chrome.tabs.create({
+        url: url,
+        active: true
+    }, function (tab) {
+        lastTab = tab;
+        console.log("[Auto Grap Output for WASM HTML] Open:", url)
+    });
 }
 
 // 开始任务
 function start(_host, _port) {
 
-    console.log("[Auto Grap Output] Start Task!")
+    console.log("[Auto Grap Output for WASM HTML] Start Task!");
 
     host = _host;
     port = _port;
 
-    sendNativeMessage({
-        cmd: "start",
-        data: {
-            work_dir_path: work_dir_path,
-            output_file_path: output_file_path
-        }
-    });
+    running = true;
 
+    lastTab = undefined;
+    htmls = [];
+    directories = ["/"];
+    output = [];
+
+    openNextWasmHtml();
+}
+
+function stop() {
+
+    console.log("[Auto Grap Output for WASM HTML] Stop Task!");
+
+    running = false;
+
+    lastTab = undefined;
+    htmls = undefined;
+    directories = undefined;
+}
+
+// 验证消息来源
+function verifyMessage(msg) {
+    return msg.extension === "auto-grab-output-for-wasm" && msg.dest === "background";
 }
 
 // 接受来自 content js 的信息
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    if (message.src === "ContentJS" && message.dest === "BackgroundJS") {
-        switch (message.cmd) {
-            case "output":
-                let msg = {
-                    cmd: "output",
-                    data: {
-                        id: htmlList[htmlId],
-                        output: message.data
-                    }
-                };
-                sendNativeMessage(msg);
-        
-                openNextWasmHtml();
-                break;
-            case "skip":
-                openNextWasmHtml();
-                break;
-        }
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+
+    if (!running) {
+        return;
     }
-    
+
+    if (!verifyMessage(message)) {
+        return;
+    }
+
+    let tab = sender.tab;
+    let pathname = message.pathname;
+    let data = message.data;
+
+    if (tab.id !== lastTab.id) {
+        return;
+    }
+
+    switch (message.cmd) {
+        case "list":
+            htmls = htmls.concat(data.htmls);
+            directories = directories.concat(data.directories);
+            console.log(directories)
+            chrome.tabs.remove(lastTab.id);
+            openNextWasmHtml();
+            break;
+        case "output":
+            // escape data
+            data = data.replace(/\n/g, "\\n").replace(/\t/g, "\\t");
+            output.push({
+                id: pathname,
+                output: data
+            });
+            chrome.tabs.remove(lastTab.id);
+            openNextWasmHtml();
+            break;
+        case "skip":
+            chrome.tabs.remove(lastTab.id);
+            openNextWasmHtml();
+            break;
+        case "stop":
+            running = false;
+            break;
+    }
 });

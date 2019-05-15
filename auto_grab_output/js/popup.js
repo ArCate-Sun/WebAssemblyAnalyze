@@ -6,7 +6,7 @@ let inputPort = document.getElementById("port");
 let btnStart = document.getElementById("start")
 
 // Background Script
-var bg = chrome.extension.getBackgroundPage();
+let bg = chrome.extension.getBackgroundPage();
 
 function enableBtnStart() {
     btnStart.disabled = false;
