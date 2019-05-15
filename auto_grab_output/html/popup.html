@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <meta charset="utf8"/>
+        <style>
+            table {
+                width: 400px;
+            }
+            table tr:nth-child(0) {
+                width: 60%;
+            }
+            table tr:nth-child(1) {
+                width: 40%;
+            }
+            table tr input {
+                width: 100%;
+            }
+            #start {
+                width: 100%;
+            }
+            .warn {
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <table width="400">
+            <tr>
+                <td id="tag-host">Host:</td>
+                <td><input type="text" id="host" value="localhost"></td>
+            </tr>
+            <tr>
+                <td id="tag-port">Port:</td>
+                <td><input type="text" id="port" value="8080"></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="start">开始</button></td>
+            </tr>
+        </table>
+         
+    </body>
+    <script src="../js/popup.js"></script>
+</html>
